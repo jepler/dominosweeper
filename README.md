@@ -7,7 +7,7 @@ in which the board has a combination of square and domino-shaped cells. It also
 has a much more powerful middle-click than traditional minesweeper.
 
 In 2008, I updated it to the then-current Python 2.x. I noted in my
-(blog post)[https://emergent.unpythonic.net/01226670165] that it didn't require
+[blog post](https://emergent.unpythonic.net/01226670165) that it didn't require
 any changes.
 
 This time around, there were some changes needed for python3, but as the

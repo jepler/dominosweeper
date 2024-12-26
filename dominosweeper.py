@@ -6,7 +6,8 @@
 
 from tkinter import *
 from tkinter.messagebox import *
-import time, random, os, traceback, string, pickle
+import time, random, os, traceback, string, pickle, sys
+import platformdirs
 
 class Setup:
     size = 0
@@ -20,6 +21,15 @@ class Setup:
     losegames = 0
     totalgames = 0
     fastest_win = -1
+
+def rcfile():
+    return platformdirs.user_config_path("dominosweeper", "rc.pck")
+
+def save_setup():
+    with open(rcfile(), "wb") as f:
+        d = [(k, v) for k, v in Setup.__dict__.items() if k[:1] in string.ascii_lowercase]
+        print(type(d), d)
+        pickle.dump(d, f)
 
 class Board(Setup):
     def __init__(self):
@@ -313,7 +323,7 @@ class Tkboard:
 
 
 class Game:
-    """DominoSweeper  by Jeff Epler <jepler@unpy.net>
+    """DominoSweeper  by Jeff Epler <jepler@gmail.com>
 
 This game is patterned after the popular MineSweeper game and implementations
 such as GnoMines.  In DominoSweeper, some of the tiles are domino-shaped,
@@ -373,21 +383,22 @@ rather than being identical squares.
         Setup.h = Height.get()
         Setup.w = Width.get()
         Setup.nbombs = Mines.get()
-        pickle.dump(Setup.__dict__, open( self.rcfile(), "w"))
+        save_setup()
 
     def prefs_command_ok(self): self.Status.set(1)
     def prefs_command_cancel(self): self.Status.set(0)
 
-    def rcfile(self):
-        return os.path.join(os.environ['HOME'], ".dsrc")
+
     def readrc(self):
         try:
-            if os.path.exists(self.rcfile()):
-                Setup.__dict__ = pickle.load(open(self.rcfile()))
+            if os.path.exists(rcfile()):
+                with open(rcfile(), "rb") as f:
+                    for k, v in pickle.load(f):
+                        setattr(Setup, k, v)
         except:
             t, v, tb = sys.exc_info()
             showerror(title="Error reading preferences",
-                message=string.join(traceback.format_exception(t,v,tb), "\n"))
+                message="\n".join(traceback.format_exception(t,v,tb)))
         
     def newgame(self, event = None):
         self.b.destroy()
@@ -478,7 +489,7 @@ rather than being identical squares.
 
         self.b = Tkboard(f, timer, status, self)
         mainloop()
-        pickle.dump(Setup.__dict__, open(self.rcfile(), "w"))
+        save_setup()
 
 if __name__ == '__main__': Game()
 
